@@ -1,0 +1,43 @@
+.modal-content {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 25px;
+}
+
+.radio-groups-container {
+  padding: 24px;
+  width: 75%;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.radioButton {
+  width: 120px;
+}
+
+.radio-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.mat-radio-button {
+  width: 35px;
+}
+
+.buttons {
+  text-align: center;
+}
+
+.buttons button {
+  margin: 0 5px;
+}
