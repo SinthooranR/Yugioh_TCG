@@ -30,3 +30,8 @@ export interface Card {
     }
   ];
 }
+
+export interface FilterEventData {
+  selected: string;
+  filterType: string;
+}

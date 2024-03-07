@@ -1,0 +1,16 @@
+section {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paginator {
+  padding-bottom: 1rem;
+}

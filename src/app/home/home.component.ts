@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CardService } from '../card.service';
-import { Card, CardList } from '../../../interfaces';
+import { Card, CardList, FilterEventData } from '../../../interfaces';
 import { CardComponent } from '../card/card.component';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
@@ -13,6 +13,7 @@ import { FilterComponent } from '../filter/filter.component';
   template: `<app-filter
       (searchEvent)="search($event)"
       (pageEvent)="onPageChange($event)"
+      (filterEvent)="filter($event)"
       [cardLength]="searchTerm ? searchedCards.length : cards.data.length"
       [pageSize]="pageSize"
     ></app-filter>
@@ -30,6 +31,10 @@ export class HomeComponent {
   pageSize: number = 20;
   currentPage: number = 0;
   searchTerm = '';
+  filterTerm = '';
+  appliedFilter = '';
+
+  filterTerms: { term: string; type: string }[] = [];
 
   ngOnInit() {
     this.cardService.getAllCards().subscribe({
@@ -37,32 +42,67 @@ export class HomeComponent {
         this.cards = v;
       },
       error: (e) => console.error(e),
-      complete: () => this.paginatCards(this.searchTerm),
+      complete: () =>
+        this.paginatCards(this.searchTerm, this.filterTerm, this.appliedFilter),
     });
   }
 
-  paginatCards(searchTerm: string) {
-    const filteredCards = this.cards.data.filter((card) =>
-      card.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  paginatCards(searchTerm: string, filterTerm: string, filterType: string) {
+    let filteredCards = this.cards.data;
+
+    // Apply search term filter
+    if (searchTerm.length > 0) {
+      filteredCards = filteredCards.filter((card) =>
+        card.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply each filter term from filterTerms array
+    this.filterTerms.forEach(({ term, type }) => {
+      if (term.length > 0 && type.length > 0) {
+        filteredCards = filteredCards.filter(
+          (card) => (card as any)[type].toLowerCase() === term.toLowerCase()
+        );
+      }
+    });
+
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    if (searchTerm.length > 0) {
-      this.searchedCards = filteredCards;
-      this.paginatedCards = filteredCards.slice(startIndex, endIndex);
-    } else {
-      this.paginatedCards = this.cards.data.slice(startIndex, endIndex);
-    }
+
+    this.searchedCards = filteredCards;
+    this.paginatedCards = filteredCards.slice(startIndex, endIndex);
   }
 
   onPageChange(event: PageEvent) {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.paginatCards(this.searchTerm);
+    this.paginatCards(this.searchTerm, this.filterTerm, this.appliedFilter);
   }
 
   search(text: string) {
     this.searchTerm = text;
-    this.paginatCards(text);
+    this.paginatCards(this.searchTerm, this.filterTerm, this.appliedFilter);
+  }
+
+  filter(data: FilterEventData) {
+    // Check if an object with the same type exists in the filterTerms array
+    const existingFilterIndex = this.filterTerms.findIndex(
+      (filter) => filter.type === data.filterType
+    );
+
+    // If an object with the same type exists, replace it; otherwise, add a new object
+    if (existingFilterIndex !== -1) {
+      this.filterTerms[existingFilterIndex] = {
+        term: data.selected,
+        type: data.filterType,
+      };
+    } else {
+      this.filterTerms.push({ term: data.selected, type: data.filterType });
+    }
+
+    // Update filterTerm to the latest filterTerm
+    this.filterTerm = this.filterTerms.map((filter) => filter.term).join(',');
+
+    this.paginatCards(this.searchTerm, this.filterTerm, data.filterType);
   }
 }
