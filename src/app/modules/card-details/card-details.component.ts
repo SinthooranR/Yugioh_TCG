@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CardService } from '../card.service';
-import { Card } from '../../../interfaces';
+import { CardService } from '../../services/card.service';
+import { Card } from '../../models/interfaces';
 
 @Component({
   selector: 'app-card-details',

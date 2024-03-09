@@ -1,15 +1,22 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatSelect } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { yugiohCardTypes, yugiohRaces } from '../../../constants';
-import { FilterEventData } from '../../../interfaces';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-search',
@@ -21,6 +28,7 @@ import { MatDialogRef } from '@angular/material/dialog';
     MatInputModule,
     MatSelect,
     MatOptionModule,
+    MatPaginator,
     MatPaginatorModule,
     MatIconModule,
   ],
@@ -56,6 +64,8 @@ export class SearchComponent {
   @Input() pageSize!: number;
   @Output() searchEvent = new EventEmitter<string>();
   @Output() pageEvent = new EventEmitter<PageEvent>();
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   search() {
     this.searchEvent.emit(this.value);

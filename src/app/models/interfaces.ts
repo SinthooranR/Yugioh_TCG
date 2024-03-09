@@ -35,3 +35,10 @@ export interface FilterEventData {
   selected: string;
   filterType: string;
 }
+
+export interface FilterOption {
+  label: string;
+  options: any[]; // Array of filter options
+  selected: string; // Variable to store the selected value
+  filterType: string; // Type of filter
+}

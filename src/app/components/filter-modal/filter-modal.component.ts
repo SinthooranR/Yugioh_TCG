@@ -1,11 +1,18 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  OnInit,
+  Input,
+  Inject,
+} from '@angular/core';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
-import { FilterEventData } from '../../../interfaces';
+import { FilterEventData, FilterOption } from '../../models/interfaces';
 import { FormsModule } from '@angular/forms';
-import { yugiohCardTypes, yugiohRaces } from '../../../constants';
+import { yugiohCardTypes, yugiohRaces } from '../../../../constants';
 import { CommonModule } from '@angular/common';
 import { MatRadioModule } from '@angular/material/radio';
 
@@ -28,10 +35,8 @@ import { MatRadioModule } from '@angular/material/radio';
             <div class="radio-group">
               <mat-label>{{ filter.label }}</mat-label>
               <mat-radio-group
-                [(ngModel)]="filter.selectedValue"
-                (change)="
-                  filterSelected(filter.selectedValue, filter.filterType)
-                "
+                [(ngModel)]="filter.selected"
+                (change)="filterSelected(filter.selected, filter.filterType)"
                 class="radio-list"
               >
                 <mat-radio-button
@@ -56,7 +61,7 @@ import { MatRadioModule } from '@angular/material/radio';
 })
 export class FilterModalComponent implements OnInit {
   filters: FilterOption[] = [];
-
+  @Input() cardLength!: number;
   @Output() filterEvent = new EventEmitter<FilterEventData>();
   @Output() resetFiltersEvent = new EventEmitter<void>();
   initialFiltersState: FilterOption[] = []; // To store initial state
@@ -67,13 +72,13 @@ export class FilterModalComponent implements OnInit {
       {
         label: 'Card Type',
         options: yugiohCardTypes,
-        selectedValue: this.getSelectedValueFromLocalStorage('frameType') || '',
+        selected: this.getSelectedValueFromLocalStorage('frameType') || '',
         filterType: 'frameType',
       },
       {
         label: 'Race',
         options: yugiohRaces,
-        selectedValue: this.getSelectedValueFromLocalStorage('race') || '',
+        selected: this.getSelectedValueFromLocalStorage('race') || '',
         filterType: 'race',
       },
       // Add more filter options here
@@ -91,14 +96,17 @@ export class FilterModalComponent implements OnInit {
     return value !== null ? value : null;
   }
 
-  constructor(public dialogRef: MatDialogRef<FilterModalComponent>) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: number,
+    public dialogRef: MatDialogRef<FilterModalComponent>
+  ) {}
 
   closeDialog(): void {
     // Emit filter event for each selected filter option
     this.filters.forEach((filter) => {
-      if (filter.selectedValue) {
+      if (filter.selected) {
         const filterEventData: FilterEventData = {
-          selected: filter.selectedValue,
+          selected: filter.selected,
           filterType: filter.filterType,
         };
         this.filterEvent.emit(filterEventData);
@@ -116,11 +124,4 @@ export class FilterModalComponent implements OnInit {
     this.resetFiltersEvent.emit();
     this.dialogRef.close();
   }
-}
-
-interface FilterOption {
-  label: string;
-  options: any[]; // Array of filter options
-  selectedValue: string; // Variable to store the selected value
-  filterType: string; // Type of filter
 }
